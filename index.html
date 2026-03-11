@@ -712,6 +712,7 @@ header {
   #products-grid { grid-template-columns: 1fr; }
 }
 </style>
+<script src="https://sellauth.com/assets/js/embed.js"></script>
 </head>
 <body>
 
@@ -1062,9 +1063,16 @@ header {
     if (!selectedProduct) return;
     const p = selectedProduct;
     const v = (p.variants||[])[p._variantIdx||0] || {};
-    const link = 'https://fkmarkett.mysellauth.com/checkout-link?cart[0][productId]=' + p.id + '&cart[0][variantId]=' + v.id + '&cart[0][quantity]=1';
-    showToast('Redirecting to checkout…');
-    setTimeout(function() { window.open(link, '_blank'); }, 500);
+    const link = 'https://fkmarkett.mysellauth.com/product/' + p.path + '?variant=' + v.id;
+    // Close our modal first
+    closeModalBtn();
+    // Trigger SellAuth embed
+    const a = document.createElement('a');
+    a.href = link;
+    a.setAttribute('data-sellauth-embed', '');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   function showToast(msg, type) {
