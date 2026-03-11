@@ -944,10 +944,9 @@ header {
 
       const letter = name.charAt(0).toUpperCase();
 
-      // Build image URL from SellAuth cloudflare_image_id
-      const imgObj = p.image || (p.images && p.images[0]) || null;
-      const cfId = imgObj && imgObj.cloudflare_image_id;
-      const imgUrl = cfId ? 'https://imagedelivery.net/jGRer7vRPfBVzNHVFalMqA/' + cfId + '/public' : null;
+      // Proxy image through Cloudflare Worker to avoid CORS
+      const imgObj = (p.images && p.images[0]) || null;
+      const imgUrl = imgObj ? 'https://nightas.nnightas.workers.dev/api/image/' + imgObj.url.split('/').pop() : null;
 
       var pillsHtml = '';
       if (variants.length > 1) {
@@ -1018,10 +1017,10 @@ header {
 
     // Show product image in modal if available
     const mImgWrap = document.getElementById('modal-img-wrap');
-    const mImgObj = p.image || (p.images && p.images[0]) || null;
-    const mCfId = mImgObj && mImgObj.cloudflare_image_id;
-    if (mCfId) {
-      mImgWrap.style.backgroundImage = 'url(https://imagedelivery.net/jGRer7vRPfBVzNHVFalMqA/' + mCfId + '/public)';
+    const mImgObj = (p.images && p.images[0]) || null;
+    const mImgUrl = mImgObj ? 'https://nightas.nnightas.workers.dev/api/image/' + mImgObj.url.split('/').pop() : null;
+    if (mImgUrl) {
+      mImgWrap.style.backgroundImage = 'url(' + mImgUrl + ')';
       mImgWrap.style.display = 'block';
     } else {
       mImgWrap.style.display = 'none';
