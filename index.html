@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KNMARKET — Digital Store</title>
+<title>FKMARKET — Digital Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -419,6 +419,12 @@ header {
   user-select: none;
 }
 
+.card-image-photo {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
 .card-badge {
   position: absolute;
   top: 12px;
@@ -711,7 +717,7 @@ header {
 
 <!-- HEADER -->
 <header>
-  <div class="logo">KNMARKET</div>
+  <div class="logo">FKMARKET</div>
   <nav>
     <ul class="nav-links">
       <li><a href="#">Home</a></li>
@@ -732,7 +738,7 @@ header {
   <div class="hero-inner">
     <div class="hero-eyebrow">Digital Marketplace</div>
     <h1>Looking for<br><em>Digital Keys</em><br>&amp; Accounts?</h1>
-    <p class="hero-sub">KNMARKET is the destination for quality accounts, license keys, software &amp; more. Instant delivery every time.</p>
+    <p class="hero-sub">FKMARKET is the destination for quality accounts, license keys, software &amp; more. Instant delivery every time.</p>
     <div class="hero-pills">
       <div class="hero-pill">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -797,6 +803,7 @@ header {
 <div id="modal-overlay" onclick="closeModal(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <div id="modal-img-wrap" style="display:none;margin-bottom:16px;border-radius:8px;overflow:hidden;height:160px;background:#1a1a1a;background-size:cover;background-position:center"></div>
     <div class="modal-eyebrow">Purchase</div>
     <div id="modal-name"></div>
     <div id="modal-variants-wrap"></div>
@@ -937,6 +944,11 @@ header {
 
       const letter = name.charAt(0).toUpperCase();
 
+      // Build image URL from SellAuth cloudflare_image_id
+      const imgObj = p.image || (p.images && p.images[0]) || null;
+      const cfId = imgObj && imgObj.cloudflare_image_id;
+      const imgUrl = cfId ? 'https://imagedelivery.net/jGRer7vRPfBVzNHVFalMqA/' + cfId + '/public' : null;
+
       var pillsHtml = '';
       if (variants.length > 1) {
         var chips = variants.slice(0, 4).map(function(v, vi) {
@@ -948,13 +960,24 @@ header {
 
       var descHtml = desc ? '<div class="card-desc">' + escHtml(desc.substring(0,90)) + (desc.length>90?'…':'') + '</div>' : '';
 
+      var cardImageHtml;
+      if (imgUrl) {
+        cardImageHtml =
+          '<div class="card-image card-image-photo" style="background-image:url(\'' + imgUrl + '\')">' +
+            '<span class="card-badge ' + (inStock ? 'in-stock' : 'out-stock') + '">' + (inStock ? 'In Stock' : 'Sold Out') + '</span>' +
+          '</div>';
+      } else {
+        cardImageHtml =
+          '<div class="card-image">' +
+            '<div class="card-image-pattern"></div>' +
+            '<div class="card-image-glow"></div>' +
+            '<div class="card-image-letter">' + escHtml(letter) + '</div>' +
+            '<span class="card-badge ' + (inStock ? 'in-stock' : 'out-stock') + '">' + (inStock ? 'In Stock' : 'Sold Out') + '</span>' +
+          '</div>';
+      }
+
       card.innerHTML =
-        '<div class="card-image">' +
-          '<div class="card-image-pattern"></div>' +
-          '<div class="card-image-glow"></div>' +
-          '<div class="card-image-letter">' + escHtml(letter) + '</div>' +
-          '<span class="card-badge ' + (inStock ? 'in-stock' : 'out-stock') + '">' + (inStock ? 'In Stock' : 'Sold Out') + '</span>' +
-        '</div>' +
+        cardImageHtml +
         '<div class="card-body">' +
           '<div class="card-tag">' + escHtml((p.deliverables_type || 'digital').toUpperCase()) + '</div>' +
           '<div class="card-name">' + escHtml(name) + '</div>' +
@@ -993,6 +1016,17 @@ header {
     document.getElementById('modal-name').textContent = p.name || 'Product';
     document.getElementById('modal-price').textContent = price;
 
+    // Show product image in modal if available
+    const mImgWrap = document.getElementById('modal-img-wrap');
+    const mImgObj = p.image || (p.images && p.images[0]) || null;
+    const mCfId = mImgObj && mImgObj.cloudflare_image_id;
+    if (mCfId) {
+      mImgWrap.style.backgroundImage = 'url(https://imagedelivery.net/jGRer7vRPfBVzNHVFalMqA/' + mCfId + '/public)';
+      mImgWrap.style.display = 'block';
+    } else {
+      mImgWrap.style.display = 'none';
+    }
+
     const wrap = document.getElementById('modal-variants-wrap');
     if (variants.length > 1) {
       const pidx = products.indexOf(p);
@@ -1029,7 +1063,7 @@ header {
     if (!selectedProduct) return;
     const p = selectedProduct;
     const v = (p.variants||[])[p._variantIdx||0] || {};
-    const link = 'https://knmarket1.mysellauth.com/checkout-link?cart[0][productId]=' + p.id + '&cart[0][variantId]=' + v.id + '&cart[0][quantity]=1';
+    const link = 'https://fkmarkett.mysellauth.com/checkout-link?cart[0][productId]=' + p.id + '&cart[0][variantId]=' + v.id + '&cart[0][quantity]=1';
     showToast('Redirecting to checkout…');
     setTimeout(function() { window.open(link, '_blank'); }, 500);
   }
