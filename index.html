@@ -829,7 +829,7 @@ header {
   async function loadProducts() {
     setStatus('loading', 'Loading...');
     try {
-      const res = await fetch('/api/products');
+      const res = await fetch('https://nightas.nnightas.workers.dev/api/products');
       const text = await res.text();
       if (!res.ok) {
         let msg = 'HTTP ' + res.status;
